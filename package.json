@@ -1,0 +1,37 @@
+{
+  "name": "wordpress-mcp",
+  "version": "1.0.0",
+  "description": "Git-like WordPress/Elementor sync toolkit (CLI + MCP)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "wordpress-sync": "dist/cli.js",
+    "wordpress-sync-mcp": "dist/mcp/server.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json",
+    "cli": "tsx src/cli.ts",
+    "mcp": "tsx src/mcp/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "axios": "^1.13.6",
+    "commander": "^14.0.3",
+    "dotenv": "^17.3.1",
+    "prettier": "^3.8.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
