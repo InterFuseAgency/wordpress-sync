@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { SyncEngine } from './core/engine.js';
 import { createProvider, type ProviderMode } from './providers/factory.js';
 import type { CommitResult, PushResult, SyncDiff } from './types.js';
@@ -193,7 +194,11 @@ export async function runCli(
   await program.parseAsync(argv, { from: 'user' });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const directEntryHref = process.argv[1]
+  ? pathToFileURL(process.argv[1]).href
+  : undefined;
+
+if (directEntryHref && import.meta.url === directEntryHref) {
   runCli(process.argv.slice(2)).catch((error) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;

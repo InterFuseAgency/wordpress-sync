@@ -28,7 +28,8 @@ import { loadManifest, saveManifest } from './manifest.js';
 import { resolveWorkspacePaths } from './paths.js';
 import {
   buildUpdatePayloadFromWpObject,
-  elementorHashFromWpObject
+  elementorHashFromWpObject,
+  normalizeWpObjectElementorData
 } from '../utils/elementor.js';
 import { writePrettyJsonFile, readJsonFile, toPosixPath } from '../utils/json.js';
 import { slugify } from '../utils/slug.js';
@@ -101,23 +102,24 @@ export class SyncEngine {
 
     for (const object of objects) {
       const kind = selector.kind ?? kindFromWpType(object.type);
+      const normalizedObject = normalizeWpObjectElementorData(object);
       const slug = slugify(object.slug || getTitle(object));
       const kindDir = this.kindDirectory(kind);
       const dir = path.join(kindDir, slug);
-      const filePath = path.join(dir, `${object.id}.json`);
+      const filePath = path.join(dir, `${normalizedObject.id}.json`);
       await mkdir(dir, { recursive: true });
-      await writePrettyJsonFile(filePath, object);
+      await writePrettyJsonFile(filePath, normalizedObject);
 
       const relPath = toPosixPath(path.relative(this.root, filePath));
-      const key = objectKey(kind, object.id);
-      const hash = elementorHashFromWpObject(object);
+      const key = objectKey(kind, normalizedObject.id);
+      const hash = elementorHashFromWpObject(normalizedObject);
       const previous = manifest.objects[key];
 
       manifest.objects[key] = {
-        id: object.id,
+        id: normalizedObject.id,
         kind,
         slug,
-        title: getTitle(object),
+        title: getTitle(normalizedObject),
         filePath: relPath,
         localHash: hash,
         lastPulledHash: hash,
@@ -439,7 +441,8 @@ export class SyncEngine {
         if (!Number.isInteger(id)) continue;
 
         const absolutePath = path.join(objectDir, file.name);
-        const wpObject = await readJsonFile<WpObject>(absolutePath);
+        const wpObjectRaw = await readJsonFile<WpObject>(absolutePath);
+        const wpObject = normalizeWpObjectElementorData(wpObjectRaw);
         const hash = elementorHashFromWpObject(wpObject);
         const relPath = toPosixPath(path.relative(this.root, absolutePath));
         const key = objectKey(kind, id);

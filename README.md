@@ -33,13 +33,23 @@ npm run build
 ```bash
 WP_URL=https://example.com
 WP_APP_USER=wordpress_user
-WP_APP_PASSWORD="Application Password"
+WP_APP_PASSWORD="password"
+
+# Auth mode:
+# - session (default): auto login via /wp-login.php, then use wp cookie + REST nonce
+# - auto: try session first, then fallback to Basic Auth
+# - basic: force Basic Auth
+WP_AUTH_MODE=session
 
 # Optional for MCP mode
 WP_SYNC_PROVIDER=rest # or mcp
 WP_SYNC_ROOT=/absolute/workspace/path
 ELEMENTOR_MCP_COMMAND=npx
 ELEMENTOR_MCP_ARGS="-y elementor-mcp"
+
+# Optional manual session auth override (usually not needed)
+WP_COOKIE="wordpress_logged_in_...=..."
+WP_NONCE="0d10f2ff23"
 ```
 
 ## CLI usage
@@ -88,6 +98,14 @@ Exposed MCP tools:
 - `sync_push`
 - `sync_rollback`
 - `sync_push_file`
+
+## Project Skills
+
+- `skills/elementor-data-only-editing/SKILL.md`
+- `skills/wordpress-sync-workflow/SKILL.md`
+- `skills/wordpress-sync-selective-push/SKILL.md`
+- `skills/wordpress-sync-rollback/SKILL.md`
+- `skills/wordpress-sync-auth-session/SKILL.md`
 
 ## Notes
 

@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'vitest';
-import { canonicalElementorString, elementorHashFromWpObject, getElementorDataFromWpObject } from '../../src/utils/elementor.js';
+import {
+  buildUpdatePayloadFromWpObject,
+  canonicalElementorString,
+  elementorHashFromWpObject,
+  getElementorDataFromWpObject
+} from '../../src/utils/elementor.js';
 
 describe('elementor utils', () => {
   test('canonicalElementorString is stable for equivalent JSON', () => {
@@ -22,5 +27,15 @@ describe('elementor utils', () => {
     const second = { meta: { _elementor_data: [{ id: '2' }] } };
 
     expect(elementorHashFromWpObject(first)).not.toBe(elementorHashFromWpObject(second));
+  });
+
+  test('buildUpdatePayloadFromWpObject ignores content.rendered', () => {
+    const payload = buildUpdatePayloadFromWpObject({
+      id: 10,
+      content: { rendered: '<p>Only rendered</p>' },
+      meta: { _elementor_data: [{ id: '1' }] }
+    });
+
+    expect(payload.content).toBeUndefined();
   });
 });

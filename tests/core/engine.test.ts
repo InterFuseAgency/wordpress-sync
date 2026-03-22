@@ -49,6 +49,27 @@ function samplePage(id: number, slug: string, elementorId: string): WpObject {
 }
 
 describe('SyncEngine', () => {
+  test('pull stores string elementor data as parsed json', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': {
+        ...samplePage(10, 'main-page', '10'),
+        meta: {
+          _elementor_data: '[{"id":"10","elType":"section"}]'
+        }
+      }
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const file = path.join(root, 'wordpress', 'pages', 'main-page', '10.json');
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    expect(Array.isArray(parsed.meta._elementor_data)).toBe(true);
+    expect(parsed.meta._elementor_data).toEqual([{ id: '10', elType: 'section' }]);
+  });
+
   test('status detects modified files', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
     const provider = new MockProvider({
@@ -90,6 +111,10 @@ describe('SyncEngine', () => {
 
     result = await engine.push({ all: true });
     expect(result.updated).toContain('page:10');
+
+    const remote = await provider.getById('page', 10);
+    expect(typeof remote.meta?._elementor_data).toBe('string');
+    expect(remote.meta?._elementor_data).toContain('"id":"999"');
   });
 
   test('commit creates snapshot and rollback restores previous version', async () => {

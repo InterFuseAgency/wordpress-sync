@@ -36,13 +36,27 @@ export function buildUpdatePayloadFromWpObject(obj: WpObject): {
   const content =
     typeof obj.content === 'string'
       ? obj.content
-      : obj.content?.raw ?? obj.content?.rendered;
+      : obj.content?.raw;
 
   return {
     title,
     status: obj.status,
     content,
     elementor_data: canonicalElementorString(getElementorDataFromWpObject(obj))
+  };
+}
+
+export function normalizeWpObjectElementorData(obj: WpObject): WpObject {
+  if (!obj.meta || obj.meta._elementor_data === undefined || obj.meta._elementor_data === null) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    meta: {
+      ...obj.meta,
+      _elementor_data: getElementorDataFromWpObject(obj)
+    }
   };
 }
 

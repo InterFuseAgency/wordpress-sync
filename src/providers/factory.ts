@@ -23,12 +23,26 @@ export function createProvider({
   const baseUrl = process.env.WP_URL;
   const user = process.env.WP_APP_USER;
   const password = process.env.WP_APP_PASSWORD;
+  const nonce = process.env.WP_NONCE;
+  const cookie = process.env.WP_COOKIE;
+  const rawAuthMode = process.env.WP_AUTH_MODE?.trim().toLowerCase();
+  const authMode =
+    rawAuthMode === 'basic' || rawAuthMode === 'auto' || rawAuthMode === 'session'
+      ? rawAuthMode
+      : undefined;
 
   if (!baseUrl) {
     throw new Error('WP_URL environment variable is required');
   }
 
-  const restProvider = new WordPressRestProvider({ baseUrl, user, password });
+  const restProvider = new WordPressRestProvider({
+    baseUrl,
+    user,
+    password,
+    nonce,
+    cookie,
+    authMode
+  });
 
   if (mode === 'rest') {
     return { provider: restProvider };
