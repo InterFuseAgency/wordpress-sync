@@ -1,9 +1,23 @@
 {
-  "name": "wordpress-mcp",
+  "name": "@interfuse/wordpress-mcp",
   "version": "1.0.0",
   "description": "Git-like WordPress/Elementor sync toolkit (CLI + MCP)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "wordpress-sync": "dist/cli.js",
     "wordpress-sync-mcp": "dist/mcp/server.js"
@@ -14,11 +28,26 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json",
     "cli": "tsx src/cli.ts",
-    "mcp": "tsx src/mcp/server.ts"
+    "mcp": "tsx src/mcp/server.ts",
+    "prepack": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "wordpress",
+    "elementor",
+    "mcp",
+    "sync",
+    "cli"
+  ],
+  "author": "InterFuse Agency",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InterFuseAgency/wordpress-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/InterFuseAgency/wordpress-sync/issues"
+  },
+  "homepage": "https://github.com/InterFuseAgency/wordpress-sync#readme",
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

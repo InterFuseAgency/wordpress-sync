@@ -1,5 +1,8 @@
 # WordPress Sync (TypeScript CLI + MCP)
 
+NPM package: `@interfuse/wordpress-mcp`
+NPM page: https://www.npmjs.com/package/@interfuse/wordpress-mcp
+
 Git-like sync tool for WordPress/Elementor content with local manifest/hashes, commit snapshots, selective push, and rollback.
 
 ## Local structure
@@ -21,11 +24,48 @@ wordpress/
         components/
 ```
 
-## Install
+## Local install
 
 ```bash
 npm install
 npm run build
+```
+
+## Install from npm
+
+Run once without global install:
+
+```bash
+npm exec --yes --package @interfuse/wordpress-mcp -- wordpress-sync --help
+```
+
+Global install (optional):
+
+```bash
+npm i -g @interfuse/wordpress-mcp
+wordpress-sync --help
+wordpress-sync-mcp
+```
+
+## Publish to npm (`interfuse` org)
+
+```bash
+npm whoami
+npm org ls interfuse
+
+# bump version before every new publish
+npm version patch --no-git-tag-version
+
+npm run build
+npm publish --access public --otp=123456
+```
+
+`publishConfig.access=public` is configured in `package.json`.
+
+If your local npm cache has permission issues, use:
+
+```bash
+npm --cache /tmp/npm-cache-wordpress-mcp publish --access public --otp=123456
 ```
 
 ## Environment
@@ -41,15 +81,24 @@ WP_APP_PASSWORD="password"
 # - basic: force Basic Auth
 WP_AUTH_MODE=session
 
-# Optional for MCP mode
-WP_SYNC_PROVIDER=rest # or mcp
-WP_SYNC_ROOT=/absolute/workspace/path
-ELEMENTOR_MCP_COMMAND=npx
-ELEMENTOR_MCP_ARGS="-y elementor-mcp"
-
 # Optional manual session auth override (usually not needed)
 WP_COOKIE="wordpress_logged_in_...=..."
 WP_NONCE="0d10f2ff23"
+```
+
+Advanced env for `wordpress-sync-mcp` (all optional):
+
+```bash
+# Workspace root for MCP server process (default: current working directory)
+WP_SYNC_ROOT=/absolute/workspace/path
+
+# Provider mode for MCP server (default: rest)
+WP_SYNC_PROVIDER=rest # or mcp
+
+# Only relevant when WP_SYNC_PROVIDER=mcp.
+# Defaults: ELEMENTOR_MCP_COMMAND=npx, ELEMENTOR_MCP_ARGS="-y elementor-mcp"
+ELEMENTOR_MCP_COMMAND=npx
+ELEMENTOR_MCP_ARGS="-y elementor-mcp"
 ```
 
 ## CLI usage
@@ -66,10 +115,10 @@ npm run cli -- push-file wordpress/pages/main-page/4320.json
 npm run cli -- rollback <commitId>
 ```
 
-Or after build:
+From the published npm package:
 
 ```bash
-npx wordpress-sync init
+npm exec --yes --package @interfuse/wordpress-mcp -- wordpress-sync init
 ```
 
 ## Commands
@@ -88,6 +137,8 @@ Run:
 
 ```bash
 npm run mcp
+# or from npm package:
+npm exec --yes --package @interfuse/wordpress-mcp -- wordpress-sync-mcp
 ```
 
 Exposed MCP tools:
@@ -106,6 +157,12 @@ Exposed MCP tools:
 - `skills/wordpress-sync-selective-push/SKILL.md`
 - `skills/wordpress-sync-rollback/SKILL.md`
 - `skills/wordpress-sync-auth-session/SKILL.md`
+
+## Install Skills in Codex
+
+```text
+Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md
+```
 
 ## Notes
 
