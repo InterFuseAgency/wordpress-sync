@@ -49,6 +49,32 @@ function samplePage(id: number, slug: string, elementorId: string): WpObject {
 }
 
 describe('SyncEngine', () => {
+  test('pull removes content fields for elementor pages', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': {
+        ...samplePage(10, 'main-page', '10'),
+        content: {
+          raw: '<p>raw that should be stripped for elementor</p>',
+          rendered: '<p>rendered that should be stripped for elementor</p>'
+        },
+        excerpt: {
+          raw: '',
+          rendered: '<p>excerpt</p>'
+        }
+      }
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const file = path.join(root, 'wordpress', 'pages', 'main-page', '10.json');
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    expect(parsed.content).toBeUndefined();
+    expect(parsed.excerpt).toBeUndefined();
+  });
+
   test('pull stores string elementor data as parsed json', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
     const provider = new MockProvider({

@@ -115,14 +115,15 @@ export class WordPressRestProvider implements SyncProvider {
   }
 
   async updateById(kind: SyncTargetKind, id: number, payload: UpdatePayload): Promise<WpObject> {
-    JSON.parse(payload.elementor_data);
-
     const endpoint = endpointForKind(kind);
-    const body: Record<string, unknown> = {
-      meta: {
+    const body: Record<string, unknown> = {};
+
+    if (payload.elementor_data !== undefined) {
+      JSON.parse(payload.elementor_data);
+      body.meta = {
         _elementor_data: payload.elementor_data
-      }
-    };
+      };
+    }
 
     if (payload.title !== undefined) body.title = payload.title;
     if (payload.status !== undefined) body.status = payload.status;

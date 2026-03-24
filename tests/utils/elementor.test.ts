@@ -38,4 +38,37 @@ describe('elementor utils', () => {
 
     expect(payload.content).toBeUndefined();
   });
+
+  test('buildUpdatePayloadFromWpObject ignores string content', () => {
+    const payload = buildUpdatePayloadFromWpObject({
+      id: 10,
+      content: '<p>Rendered-like string</p>',
+      meta: { _elementor_data: [{ id: '1' }] }
+    });
+
+    expect(payload.content).toBeUndefined();
+  });
+
+  test('buildUpdatePayloadFromWpObject ignores content for elementor builder pages', () => {
+    const payload = buildUpdatePayloadFromWpObject({
+      id: 10,
+      content: { raw: '<p>Should not be pushed</p>' },
+      meta: {
+        _elementor_edit_mode: 'builder',
+        _elementor_data: [{ id: '1' }]
+      }
+    });
+
+    expect(payload.content).toBeUndefined();
+  });
+
+  test('buildUpdatePayloadFromWpObject keeps raw content for non-elementor pages', () => {
+    const payload = buildUpdatePayloadFromWpObject({
+      id: 11,
+      content: { raw: '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->' },
+      meta: {}
+    });
+
+    expect(payload.content).toBe('<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->');
+  });
 });

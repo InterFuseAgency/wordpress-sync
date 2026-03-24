@@ -20,7 +20,7 @@ export interface UpdatePayload {
   title?: string;
   status?: string;
   content?: string;
-  elementor_data: string;
+  elementor_data?: string;
 }
 
 export interface SyncProvider {

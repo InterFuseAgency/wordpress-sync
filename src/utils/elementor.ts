@@ -22,32 +22,48 @@ export function canonicalElementorString(value: unknown): string {
 export function elementorHashFromWpObject(
   obj: WpObject | { meta?: { _elementor_data?: unknown } }
 ): string {
-  const elementor = getElementorDataFromWpObject(obj);
-  return sha256(canonicalElementorString(elementor));
+  if (hasElementorData(obj)) {
+    const elementor = getElementorDataFromWpObject(obj);
+    return sha256(canonicalElementorString(elementor));
+  }
+
+  const content = getRawContentForUpdate(obj as { content?: unknown });
+  return sha256(
+    canonicalElementorString({
+      content
+    })
+  );
 }
 
 export function buildUpdatePayloadFromWpObject(obj: WpObject): {
   title?: string;
   status?: string;
   content?: string;
-  elementor_data: string;
+  elementor_data?: string;
 } {
   const title = typeof obj.title === 'string' ? obj.title : obj.title?.rendered;
+  const hasElementor = hasElementorData(obj);
   const content =
-    typeof obj.content === 'string'
-      ? obj.content
-      : obj.content?.raw;
+    hasElementor
+      ? undefined
+      : typeof obj.content === 'object' && obj.content
+        ? obj.content.raw
+        : undefined;
+
+  const elementorData = hasElementor
+    ? canonicalElementorString(getElementorDataFromWpObject(obj))
+    : undefined;
 
   return {
     title,
     status: obj.status,
     content,
-    elementor_data: canonicalElementorString(getElementorDataFromWpObject(obj))
+    elementor_data: elementorData
   };
 }
 
 export function normalizeWpObjectElementorData(obj: WpObject): WpObject {
-  if (!obj.meta || obj.meta._elementor_data === undefined || obj.meta._elementor_data === null) {
+  if (!hasElementorData(obj)) {
     return obj;
   }
 
@@ -58,6 +74,28 @@ export function normalizeWpObjectElementorData(obj: WpObject): WpObject {
       _elementor_data: getElementorDataFromWpObject(obj)
     }
   };
+}
+
+export function prepareWpObjectForLocalEdit(obj: WpObject): WpObject {
+  const normalized = normalizeWpObjectElementorData(obj);
+  if (!hasElementorData(normalized)) {
+    return normalized;
+  }
+
+  const { content: _content, excerpt: _excerpt, ...rest } = normalized;
+  return rest;
+}
+
+function hasElementorData(obj: { meta?: { _elementor_data?: unknown } }): boolean {
+  return obj.meta?._elementor_data !== undefined && obj.meta?._elementor_data !== null;
+}
+
+function getRawContentForUpdate(obj: { content?: unknown }): string | undefined {
+  if (typeof obj.content === 'object' && obj.content && 'raw' in obj.content) {
+    const raw = (obj.content as { raw?: unknown }).raw;
+    return typeof raw === 'string' ? raw : undefined;
+  }
+  return undefined;
 }
 
 function sortJsonDeep(value: unknown): unknown {

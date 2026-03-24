@@ -49,18 +49,24 @@ export class ElementorMcpProvider implements SyncProvider {
       throw new Error('Component operations require REST fallback in MCP mode');
     }
 
-    await this.config.callTool('update_page', {
+    const args: Record<string, unknown> = {
       pageId: id,
       title: payload.title,
       status: payload.status,
-      content: payload.content,
-      elementor_data: payload.elementor_data
-    });
+      content: payload.content
+    };
+    if (payload.elementor_data !== undefined) {
+      args.elementor_data = payload.elementor_data;
+    }
+
+    await this.config.callTool('update_page', args);
 
     return this.getById(kind, id).catch(() => ({
       id,
       type: 'page',
-      meta: { _elementor_data: payload.elementor_data }
+      ...(payload.elementor_data !== undefined
+        ? { meta: { _elementor_data: payload.elementor_data } }
+        : {})
     }));
   }
 }

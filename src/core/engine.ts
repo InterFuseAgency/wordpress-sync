@@ -29,7 +29,8 @@ import { resolveWorkspacePaths } from './paths.js';
 import {
   buildUpdatePayloadFromWpObject,
   elementorHashFromWpObject,
-  normalizeWpObjectElementorData
+  normalizeWpObjectElementorData,
+  prepareWpObjectForLocalEdit
 } from '../utils/elementor.js';
 import { writePrettyJsonFile, readJsonFile, toPosixPath } from '../utils/json.js';
 import { slugify } from '../utils/slug.js';
@@ -102,7 +103,7 @@ export class SyncEngine {
 
     for (const object of objects) {
       const kind = selector.kind ?? kindFromWpType(object.type);
-      const normalizedObject = normalizeWpObjectElementorData(object);
+      const normalizedObject = prepareWpObjectForLocalEdit(object);
       const slug = slugify(object.slug || getTitle(object));
       const kindDir = this.kindDirectory(kind);
       const dir = path.join(kindDir, slug);
