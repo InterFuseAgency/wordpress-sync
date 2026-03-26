@@ -6,7 +6,7 @@ import { readJsonFile, writePrettyJsonFile } from '../utils/json.js';
 
 export function createEmptyManifest(): GitManifest {
   return {
-    version: 1,
+    version: 2,
     head: null,
     commits: [],
     objects: {},

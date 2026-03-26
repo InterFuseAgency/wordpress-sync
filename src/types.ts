@@ -1,4 +1,5 @@
 export type SyncTargetKind = 'page' | 'component';
+export type HistoryMode = 'json-patch' | 'full';
 
 export type ElementorData = unknown;
 
@@ -20,6 +21,7 @@ export interface UpdatePayload {
   title?: string;
   status?: string;
   content?: string;
+  slug?: string;
   elementor_data?: string;
 }
 
@@ -48,6 +50,7 @@ export interface CommitEntry {
   createdAt: string;
   changedObjects: string[];
   snapshotPath: string;
+  mode?: 'snapshot' | 'full' | 'diff';
 }
 
 export interface GitManifest {
@@ -75,6 +78,14 @@ export interface PullSelector {
   id?: number;
   kind?: SyncTargetKind;
   slug?: string;
+}
+
+export interface HistoryWriteOptions {
+  historyMode?: HistoryMode;
+}
+
+export interface SyncEngineOptions {
+  historyMode?: HistoryMode;
 }
 
 export interface CommitSelector {

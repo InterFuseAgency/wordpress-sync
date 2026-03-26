@@ -53,7 +53,8 @@ export class ElementorMcpProvider implements SyncProvider {
       pageId: id,
       title: payload.title,
       status: payload.status,
-      content: payload.content
+      content: payload.content,
+      slug: payload.slug
     };
     if (payload.elementor_data !== undefined) {
       args.elementor_data = payload.elementor_data;

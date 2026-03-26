@@ -51,3 +51,10 @@ WP_APP_PASSWORD=secret
 - Edit Elementor structure through `meta._elementor_data`.
 - Use `status` before `commit` and before `push`.
 
+## MCP Flow (No Local Pull Required for Discovery)
+Use these MCP tools when you need to discover IDs/slugs before sync operations:
+
+1. `sync_setup` — initialize workspace and credentials.
+2. `sync_list_pages` — list WordPress pages (`search`, `limit` available).
+3. `sync_list_components` — list Elementor templates/components (`search`, `limit` available).
+4. `sync_pull` / `sync_push` / `sync_push_file` / `sync_rollback` — execute sync operations.

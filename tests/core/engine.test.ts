@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
@@ -25,7 +25,17 @@ class MockProvider implements SyncProvider {
     return found ? structuredClone(found) : null;
   }
 
-  async updateById(kind: SyncTargetKind, id: number, payload: { elementor_data: string; title?: string; status?: string; content?: string; }): Promise<WpObject> {
+  async updateById(
+    kind: SyncTargetKind,
+    id: number,
+    payload: {
+      elementor_data: string;
+      title?: string;
+      status?: string;
+      content?: string;
+      slug?: string;
+    }
+  ): Promise<WpObject> {
     const key = `${kind}:${id}`;
     const current = this.store[key];
     if (!current) throw new Error(`Not found ${key}`);
@@ -49,6 +59,134 @@ function samplePage(id: number, slug: string, elementorId: string): WpObject {
 }
 
 describe('SyncEngine', () => {
+  test('pull stores full history record and next commit stores diff', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10')
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true });
+
+    let manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    const pullCommit = manifest.commits[0];
+    expect(pullCommit.mode).toBe('full');
+    expect(pullCommit.snapshotPath.endsWith('/entry.json')).toBe(true);
+
+    const pullRecord = JSON.parse(readFileSync(path.join(root, pullCommit.snapshotPath), 'utf8'));
+    expect(pullRecord.mode).toBe('full');
+    expect(pullRecord.changes[0].mode).toBe('full');
+
+    const file = path.join(root, 'wordpress', 'pages', 'main-page', '10.json');
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    parsed.meta._elementor_data = [{ id: '999', elType: 'section' }];
+    writeFileSync(file, JSON.stringify(parsed, null, 2));
+
+    const commit = await engine.commit({ message: 'diff commit', all: true });
+    manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    const diffCommit = manifest.commits.find((entry: { id: string; }) => entry.id === commit.commitId);
+
+    expect(diffCommit?.mode).toBe('diff');
+    expect(diffCommit?.snapshotPath.endsWith('/entry.json')).toBe(true);
+
+    const diffRecord = JSON.parse(readFileSync(path.join(root, diffCommit.snapshotPath), 'utf8'));
+    const diffChange = diffRecord.changes.find((entry: { key: string; }) => entry.key === 'page:10');
+    expect(diffRecord.mode).toBe('diff');
+    expect(diffChange.mode).toBe('diff');
+    expect(diffChange.format).toBe('json-patch');
+    expect(Array.isArray(diffChange.patch)).toBe(true);
+    expect(diffChange.patch.length).toBeGreaterThan(0);
+    expect(diffChange.patch[0]).toEqual(expect.objectContaining({
+      op: expect.any(String),
+      path: expect.any(String)
+    }));
+  });
+
+  test('commit stores full objects when history mode is full', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10')
+    });
+
+    const engine = new SyncEngine(root, provider, { historyMode: 'full' });
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const file = path.join(root, 'wordpress', 'pages', 'main-page', '10.json');
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    parsed.meta._elementor_data = [{ id: 'full-mode', elType: 'section' }];
+    writeFileSync(file, JSON.stringify(parsed, null, 2));
+
+    const commit = await engine.commit({ message: 'full mode commit', all: true });
+    const manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    const entry = manifest.commits.find((item: { id: string; }) => item.id === commit.commitId);
+    const record = JSON.parse(readFileSync(path.join(root, entry.snapshotPath), 'utf8'));
+    const change = record.changes.find((item: { key: string; }) => item.key === 'page:10');
+
+    expect(record.mode).toBe('full');
+    expect(change.mode).toBe('full');
+    expect(change.object.meta._elementor_data[0].id).toBe('full-mode');
+  });
+
+  test('json-patch mode stores added files as diff patch', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10')
+    });
+
+    const engine = new SyncEngine(root, provider, { historyMode: 'json-patch' });
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const dir = path.join(root, 'wordpress', 'pages', 'new-local-page');
+    const newFile = path.join(dir, '99.json');
+    const newObject = samplePage(99, 'new-local-page', '99');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(newFile, JSON.stringify(newObject, null, 2));
+    expect(existsSync(newFile)).toBe(true);
+
+    const commit = await engine.commit({ message: 'add local file', all: true });
+    const manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    const entry = manifest.commits.find((item: { id: string; }) => item.id === commit.commitId);
+    const record = JSON.parse(readFileSync(path.join(root, entry.snapshotPath), 'utf8'));
+    const change = record.changes.find((item: { key: string; }) => item.key === 'page:99');
+
+    expect(change.mode).toBe('diff');
+    expect(change.format).toBe('json-patch');
+    expect(Array.isArray(change.patch)).toBe(true);
+    expect(change.patch[0].op).toBe('add');
+    expect(change.patch[0].path).toBe('');
+    expect(change.object).toBeUndefined();
+  });
+
+  test('pull creates history entry and supports rollback without manual commit', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10')
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const manifestFile = path.join(root, 'wordpress', 'git.json');
+    const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
+    expect(manifest.commits.length).toBe(1);
+    expect(manifest.head).toBeTruthy();
+    expect(manifest.commits[0].changedObjects).toContain('page:10');
+
+    const file = path.join(root, 'wordpress', 'pages', 'main-page', '10.json');
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    parsed.meta._elementor_data = [{ id: '999', elType: 'section' }];
+    writeFileSync(file, JSON.stringify(parsed, null, 2));
+
+    await engine.rollback({ commitId: manifest.head });
+
+    const restored = JSON.parse(readFileSync(file, 'utf8'));
+    expect(restored.meta._elementor_data[0].id).toBe('10');
+  });
+
   test('pull removes content fields for elementor pages', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
     const provider = new MockProvider({
@@ -96,6 +234,28 @@ describe('SyncEngine', () => {
     expect(parsed.meta._elementor_data).toEqual([{ id: '10', elType: 'section' }]);
   });
 
+  test('pull decodes percent-encoded slug/link for local files', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const encodedSlug = '%d0%b3%d0%be%d0%bb%d0%be%d0%b2%d0%bd%d0%b0';
+    const decodedSlug = 'головна';
+    const provider = new MockProvider({
+      'page:10': {
+        ...samplePage(10, encodedSlug, '10'),
+        link: `https://example.com/uk/${encodedSlug}/`
+      }
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true });
+
+    const file = path.join(root, 'wordpress', 'pages', decodedSlug, '10.json');
+    expect(existsSync(file)).toBe(true);
+    const parsed = JSON.parse(readFileSync(file, 'utf8'));
+    expect(parsed.slug).toBe(decodedSlug);
+    expect(parsed.link).toBe(`https://example.com/uk/${decodedSlug}/`);
+  });
+
   test('status detects modified files', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
     const provider = new MockProvider({
@@ -114,6 +274,34 @@ describe('SyncEngine', () => {
 
     const status = await engine.status();
     expect(status.modified).toContain('page:10');
+  });
+
+  test('listRemote returns remote objects for requested kind', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10'),
+      'component:11': {
+        id: 11,
+        type: 'elementor_library',
+        slug: 'hero-banner',
+        title: { rendered: 'Hero Banner' },
+        status: 'publish',
+        meta: {
+          _elementor_data: [{ id: '11', elType: 'section' }]
+        }
+      }
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+
+    const pages = await engine.listRemote('page');
+    const components = await engine.listRemote('component');
+
+    expect(pages).toHaveLength(1);
+    expect(pages[0].id).toBe(10);
+    expect(components).toHaveLength(1);
+    expect(components[0].id).toBe(11);
   });
 
   test('push skips unchanged remote content and updates changed', async () => {
@@ -143,7 +331,7 @@ describe('SyncEngine', () => {
     expect(remote.meta?._elementor_data).toContain('"id":"999"');
   });
 
-  test('commit creates snapshot and rollback restores previous version', async () => {
+  test('commit creates history entry and rollback restores previous version', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
     const provider = new MockProvider({
       'page:10': samplePage(10, 'main-page', '10')

@@ -71,4 +71,14 @@ describe('elementor utils', () => {
 
     expect(payload.content).toBe('<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->');
   });
+
+  test('buildUpdatePayloadFromWpObject percent-encodes unicode slug for push', () => {
+    const payload = buildUpdatePayloadFromWpObject({
+      id: 12,
+      slug: 'головна',
+      meta: { _elementor_data: [{ id: '1' }] }
+    });
+
+    expect(payload.slug).toBe(encodeURIComponent('головна'));
+  });
 });

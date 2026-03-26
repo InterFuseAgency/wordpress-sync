@@ -1,6 +1,6 @@
 {
   "name": "@interfuse/wordpress-mcp",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Git-like WordPress/Elementor sync toolkit (CLI + MCP)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,6 +19,7 @@
     "access": "public"
   },
   "bin": {
+    "wordpress-mcp": "dist/npx.js",
     "wordpress-sync": "dist/cli.js",
     "wordpress-sync-mcp": "dist/mcp/server.js"
   },

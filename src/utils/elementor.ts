@@ -1,5 +1,10 @@
 import { sha256 } from './hash.js';
 import type { WpObject } from '../types.js';
+import {
+  decodePercentEncoded,
+  decodePercentEncodedUrl,
+  encodeSlugForWordPress
+} from './slug.js';
 
 export function getElementorDataFromWpObject(obj: WpObject | { meta?: { _elementor_data?: unknown } }): unknown {
   const raw = obj.meta?._elementor_data;
@@ -39,6 +44,7 @@ export function buildUpdatePayloadFromWpObject(obj: WpObject): {
   title?: string;
   status?: string;
   content?: string;
+  slug?: string;
   elementor_data?: string;
 } {
   const title = typeof obj.title === 'string' ? obj.title : obj.title?.rendered;
@@ -53,11 +59,13 @@ export function buildUpdatePayloadFromWpObject(obj: WpObject): {
   const elementorData = hasElementor
     ? canonicalElementorString(getElementorDataFromWpObject(obj))
     : undefined;
+  const slug = typeof obj.slug === 'string' ? encodeSlugForWordPress(obj.slug) : undefined;
 
   return {
     title,
     status: obj.status,
     content,
+    slug,
     elementor_data: elementorData
   };
 }
@@ -77,13 +85,35 @@ export function normalizeWpObjectElementorData(obj: WpObject): WpObject {
 }
 
 export function prepareWpObjectForLocalEdit(obj: WpObject): WpObject {
-  const normalized = normalizeWpObjectElementorData(obj);
+  const decoded = decodeWpObjectTextFields(obj);
+  const normalized = normalizeWpObjectElementorData(decoded);
   if (!hasElementorData(normalized)) {
     return normalized;
   }
 
   const { content: _content, excerpt: _excerpt, ...rest } = normalized;
   return rest;
+}
+
+function decodeWpObjectTextFields(obj: WpObject): WpObject {
+  const out: WpObject = {
+    ...obj
+  };
+
+  if (typeof out.slug === 'string') {
+    out.slug = decodePercentEncoded(out.slug);
+  }
+  if (typeof out.generated_slug === 'string') {
+    out.generated_slug = decodePercentEncoded(out.generated_slug);
+  }
+  if (typeof out.link === 'string') {
+    out.link = decodePercentEncodedUrl(out.link);
+  }
+  if (typeof out.permalink_template === 'string') {
+    out.permalink_template = decodePercentEncodedUrl(out.permalink_template);
+  }
+
+  return out;
 }
 
 function hasElementorData(obj: { meta?: { _elementor_data?: unknown } }): boolean {

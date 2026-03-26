@@ -128,6 +128,7 @@ export class WordPressRestProvider implements SyncProvider {
     if (payload.title !== undefined) body.title = payload.title;
     if (payload.status !== undefined) body.status = payload.status;
     if (payload.content !== undefined) body.content = payload.content;
+    if (payload.slug !== undefined) body.slug = payload.slug;
 
     const response = await this.requestWithAuth((headers) =>
       this.client.post(`/wp-json/wp/v2/${endpoint}/${id}`, body, {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SyncEngine } from './core/engine.js';
 import { createProvider, type ProviderMode } from './providers/factory.js';
-import type { CommitResult, PushResult, SyncDiff } from './types.js';
+import type { CommitResult, HistoryMode, PushResult, SyncDiff } from './types.js';
 
 type EngineLike = Pick<
   SyncEngine,
@@ -14,6 +14,7 @@ type EngineLike = Pick<
 export interface CliGlobalOptions {
   root: string;
   provider: ProviderMode;
+  historyMode: HistoryMode;
 }
 
 export interface EngineContext {
@@ -35,7 +36,9 @@ function defaultFactory(options: CliGlobalOptions): Promise<EngineContext> {
     cwd: options.root
   });
   return Promise.resolve({
-    engine: new SyncEngine(options.root, providerResult.provider),
+    engine: new SyncEngine(options.root, providerResult.provider, {
+      historyMode: options.historyMode
+    }),
     cleanup: providerResult.cleanup
   });
 }
@@ -72,14 +75,20 @@ export async function runCli(
     .name('wordpress-sync')
     .option('--root <path>', 'workspace root', process.cwd())
     .option('--provider <mode>', 'provider mode: rest|mcp', 'rest')
+    .option(
+      '--history-mode <mode>',
+      'history mode: json-patch|full (env: WP_SYNC_HISTORY_MODE)',
+      process.env.WP_SYNC_HISTORY_MODE ?? 'json-patch'
+    )
     .showSuggestionAfterError();
 
   const getGlobals = (): CliGlobalOptions => {
-    const opts = program.opts<{ root: string; provider: string }>();
+    const opts = program.opts<{ root: string; provider: string; historyMode: string }>();
     const provider = opts.provider === 'mcp' ? 'mcp' : 'rest';
     return {
       root: path.resolve(opts.root),
-      provider
+      provider,
+      historyMode: SyncEngine.historyModeFromCli(opts.historyMode)
     };
   };
 
@@ -99,9 +108,16 @@ export async function runCli(
     .option('--id <id>', 'pull by id')
     .option('--kind <kind>', 'page|component')
     .option('--slug <slug>', 'pull by slug')
+    .option('--history-mode <mode>', 'override history mode for this command')
     .action(async (args) => {
       const id = args.id !== undefined ? Number.parseInt(args.id, 10) : undefined;
       const kind = args.kind ? SyncEngine.kindFromCli(args.kind) : undefined;
+      const historyModeInput =
+        (args.historyMode as string | undefined) ??
+        program.opts<{ historyMode?: string }>().historyMode;
+      const historyMode = historyModeInput
+        ? SyncEngine.historyModeFromCli(historyModeInput)
+        : undefined;
       const selector = {
         all: Boolean(args.all),
         id,
@@ -110,7 +126,7 @@ export async function runCli(
       };
 
       const result = await withEngine(getGlobals(), engineFactory, (engine) =>
-        engine.pull(selector)
+        engine.pull(selector, { historyMode })
       );
       printJson({ pulled: result });
     });
@@ -129,13 +145,20 @@ export async function runCli(
     .requiredOption('-m, --message <message>', 'commit message')
     .option('--all', 'commit all changed files')
     .option('--file <file>', 'commit one file')
+    .option('--history-mode <mode>', 'override history mode for this command')
     .action(async (args) => {
+      const historyModeInput =
+        (args.historyMode as string | undefined) ??
+        program.opts<{ historyMode?: string }>().historyMode;
+      const historyMode = historyModeInput
+        ? SyncEngine.historyModeFromCli(historyModeInput)
+        : undefined;
       const result = await withEngine(getGlobals(), engineFactory, (engine) =>
         engine.commit({
           all: Boolean(args.all),
           file: args.file as string | undefined,
           message: args.message as string
-        })
+        }, { historyMode })
       );
       printJson(result satisfies CommitResult);
     });

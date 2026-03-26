@@ -33,10 +33,13 @@ node dist/cli.js --provider rest pull --id 3625 --kind page
 ```
 3. If nonce expires, rerun the command; provider refreshes session on 401 nonce errors.
 
+MCP equivalents:
+- Run `sync_setup` first.
+- Use `sync_list_pages` / `sync_list_components` to validate access quickly without pulling files.
+
 ## Manual Override (Rare)
 Use only if login flow is blocked by custom auth plugins:
 ```bash
 WP_COOKIE='wordpress_logged_in_...=...'
 WP_NONCE='abc123'
 ```
-
