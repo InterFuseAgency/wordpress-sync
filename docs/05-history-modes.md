@@ -1,12 +1,12 @@
 # History Modes and Diff Format
 
-## Формат истории
+## History Format
 
-Каждый commit хранится в:
+Each commit is stored in:
 
 - `wordpress/.history/<commitId>/entry.json`
 
-Поля commit entry:
+Commit entry fields:
 
 - `id`
 - `message`
@@ -17,13 +17,13 @@
 
 ## `json-patch` (default)
 
-Для обычных `commit` используется `mode: "diff"` и стандарт JSON Patch (RFC6902):
+Regular `commit` operations use `mode: "diff"` and standard JSON Patch (RFC 6902):
 
 - `add`
 - `replace`
 - `remove`
 
-Пример change:
+Example change:
 
 ```json
 {
@@ -38,17 +38,17 @@
 
 ## `full`
 
-Для обычных `commit` используется `mode: "full"` и хранится полный объект.
+Regular `commit` operations use `mode: "full"` and store the full object.
 
-## Pull baseline
+## Pull Baseline
 
-`pull` всегда создаёт baseline (`mode: "full"`), чтобы diff-коммиты имели корректную базу.
+`pull` always creates a baseline (`mode: "full"`) so diff commits have a correct base.
 
 ## Rollback
 
-Rollback восстанавливает состояние через replay коммитов.
+Rollback restores state by replaying commits.
 
-Поддержка legacy:
+Legacy support:
 
-- старые snapshot-коммиты продолжают работать
-- legacy custom diff (`set/remove` с массивом пути) тоже читается
+- old snapshot commits continue to work
+- legacy custom diff format (`set/remove` with array path) is also supported

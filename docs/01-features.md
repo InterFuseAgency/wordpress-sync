@@ -1,73 +1,73 @@
 # Features
 
-## 1. Инициализация workspace
+## 1. Workspace Initialization
 
-Команда `init` создаёт структуру:
+The `init` command creates this structure:
 
 - `wordpress/git.json`
 - `wordpress/pages/`
 - `wordpress/components/`
 - `wordpress/.history/`
 
-## 2. Pull контента из WordPress
+## 2. Pull Content from WordPress
 
-Команда `pull` загружает страницы/компоненты и сохраняет их локально как JSON.
+The `pull` command downloads pages/components and saves them locally as JSON.
 
-Селекторы:
+Selectors:
 
-- `--all` — все pages + components
-- `--id <id> --kind <page|component>` — конкретный объект
-- `--slug <slug> [--kind ...]` — объект по slug
+- `--all` - all pages and components
+- `--id <id> --kind <page|component>` - a specific object
+- `--slug <slug> [--kind ...]` - object by slug
 
-Поведение истории:
+History behavior:
 
-- каждый `pull` всегда пишет `full` baseline в историю
-- baseline используется как база для следующих `diff`-коммитов
+- each `pull` always writes a `full` baseline entry
+- that baseline is used for subsequent diff commits
 
-## 3. Статус изменений
+## 3. Change Status
 
-Команда `status` показывает:
+The `status` command shows:
 
-- `added` — есть локально, нет в `git.json`
-- `modified` — хэш отличается от tracked-состояния
-- `deleted` — есть в `git.json`, но удалён локально
+- `added` - exists locally but not in `git.json`
+- `modified` - content hash differs from tracked state
+- `deleted` - present in `git.json` but missing locally
 
-## 4. Commit локальной истории
+## 4. Commit Local History
 
-Команда `commit` фиксирует локальные изменения в `.history/<commitId>/entry.json`.
+The `commit` command writes local changes to `.history/<commitId>/entry.json`.
 
-Режимы:
+Modes:
 
-- `json-patch` (по умолчанию): сохраняется стандартный JSON Patch diff (RFC 6902)
-- `full`: сохраняется полный объект в коммите
+- `json-patch` (default): stores RFC 6902 JSON Patch diff
+- `full`: stores the full object in the commit
 
-## 5. Push в WordPress
+## 5. Push to WordPress
 
-Команда `push` отправляет изменения только когда контент реально отличается от remote.
+The `push` command sends updates only when local content differs from remote.
 
-Логика:
+Logic:
 
-- сравнение локального и удалённого canonical hash
-- если одинаково: объект попадает в `skipped`
-- если отличается: отправка update и попадание в `updated`
+- compares local and remote canonical hash
+- if equal: object is reported in `skipped`
+- if different: update is sent and reported in `updated`
 
 ## 6. Rollback
 
-Команда `rollback <commitId>` восстанавливает состояние на момент коммита:
+`rollback <commitId>` restores workspace state for that commit:
 
-- полный rollback workspace
-- или точечный rollback по `--file`
-- или точечный rollback по `--id --kind`
+- full workspace rollback
+- targeted rollback by `--file`
+- targeted rollback by `--id --kind`
 
-Поддерживается совместимость со старыми snapshot-коммитами.
+Legacy snapshot commits are supported.
 
-## 7. Push одного файла
+## 7. Push a Single File
 
-Команда `push-file <path>` — shortcut для точечного `push` по одному JSON.
+`push-file <path>` is a shortcut for targeted push of one JSON file.
 
-## 8. MCP сервер
+## 8. MCP Server
 
-Режим `mcp` поднимает MCP сервер и предоставляет инструменты:
+The `mcp` mode starts an MCP server with these tools:
 
 - `sync_setup`
 - `sync_list_pages`

@@ -1,14 +1,14 @@
 # CLI Flags
 
-## Глобальные флаги
+## Global Flags
 
-- `--root <path>` — корень workspace (default: текущая директория)
-- `--provider <mode>` — `rest|mcp` (default: `rest`)
-- `--history-mode <mode>` — `json-patch|full` (default: `json-patch` или `WP_SYNC_HISTORY_MODE`)
+- `--root <path>` - workspace root (default: current directory)
+- `--provider <mode>` - `rest|mcp` (default: `rest`)
+- `--history-mode <mode>` - `json-patch|full` (default: `json-patch` or `WP_SYNC_HISTORY_MODE`)
 
 ## `init`
 
-Флагов команды нет.
+No command-specific flags.
 
 ## `pull`
 
@@ -16,18 +16,18 @@
 - `--id <id>`
 - `--kind <kind>` (`page|component`)
 - `--slug <slug>`
-- `--history-mode <mode>` — override для этой команды
+- `--history-mode <mode>` - command-level override
 
 ## `status`
 
-Флагов команды нет.
+No command-specific flags.
 
 ## `commit`
 
 - `-m, --message <message>` (required)
 - `--all`
 - `--file <file>`
-- `--history-mode <mode>` — override для этой команды
+- `--history-mode <mode>` - command-level override
 
 ## `push`
 
@@ -47,7 +47,7 @@
 
 - `--dry-run`
 
-## Приоритет history mode
+## History Mode Priority
 
 1. command-level `--history-mode`
 2. global `--history-mode`

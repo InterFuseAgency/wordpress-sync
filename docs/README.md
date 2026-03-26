@@ -1,18 +1,34 @@
-# WordPress MCP Documentation
+# WordPress Sync Documentation
 
-Полная документация по возможностям, флагам и переменным окружения.
+## What This Is
 
-## Разделы
+This is the official documentation index for `@interfuse/wordpress-mcp`, a CLI + MCP tool for syncing WordPress and Elementor content into local JSON files with history tracking.
 
-- [01-features.md](./01-features.md) — все фичи и сценарии работы
-- [02-cli-flags.md](./02-cli-flags.md) — все CLI команды и флаги
-- [03-mcp-tools.md](./03-mcp-tools.md) — MCP инструменты и параметры
-- [04-env-vars.md](./04-env-vars.md) — все переменные окружения
-- [05-history-modes.md](./05-history-modes.md) — форматы истории и diff-режимы
+## Installation
 
-## Быстрый старт
+Recommended quick start (no global install):
 
-1. Настройте `WP_URL`, `WP_APP_USER`, `WP_APP_PASSWORD`.
-2. Выполните `init`, затем `pull --all`.
-3. Редактируйте JSON, проверяйте `status`, фиксируйте `commit`, отправляйте `push`.
-4. При необходимости используйте `rollback <commitId>`.
+```bash
+npx -y @interfuse/wordpress-mcp --help
+npx -y @interfuse/wordpress-mcp init
+```
+
+Required environment variables:
+
+```bash
+WP_URL=https://example.com
+WP_APP_USER=wordpress_user
+WP_APP_PASSWORD="password"
+```
+
+For full install and setup details, see [../README.md](../README.md).
+
+## Documentation List
+
+- [01-features.md](./01-features.md) - features and workflow scenarios
+- [02-cli-flags.md](./02-cli-flags.md) - CLI commands and flags
+- [03-mcp-tools.md](./03-mcp-tools.md) - MCP tools and parameters
+- [04-env-vars.md](./04-env-vars.md) - environment variables
+- [05-history-modes.md](./05-history-modes.md) - history modes and diff format
+
+Ukrainian index: [README.uk.md](./README.uk.md)

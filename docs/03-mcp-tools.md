@@ -2,9 +2,9 @@
 
 ## `sync_setup`
 
-Назначение: инициализировать workspace и сохранить WordPress доступы в `.env`.
+Purpose: initialize workspace and save WordPress credentials into `.env`.
 
-Параметры:
+Parameters:
 
 - `wpUrl?: string`
 - `wpAppUser?: string`
@@ -13,27 +13,27 @@
 
 ## `sync_list_pages`
 
-Назначение: получить список страниц WordPress (theme pages) без `pull` в workspace.
+Purpose: list WordPress pages (theme pages) without pulling into workspace.
 
-Параметры:
+Parameters:
 
 - `search?: string`
-- `limit?: number` (по умолчанию `200`, максимум `2000`)
+- `limit?: number` (default `200`, max `2000`)
 
 ## `sync_list_components`
 
-Назначение: получить список Elementor компонентов/шаблонов без `pull` в workspace.
+Purpose: list Elementor components/templates without pulling into workspace.
 
-Параметры:
+Parameters:
 
 - `search?: string`
-- `limit?: number` (по умолчанию `200`, максимум `2000`)
+- `limit?: number` (default `200`, max `2000`)
 
 ## `sync_pull`
 
-Назначение: загрузка объектов WordPress в локальный workspace.
+Purpose: pull WordPress objects into local workspace.
 
-Параметры:
+Parameters:
 
 - `all?: boolean`
 - `id?: number`
@@ -43,15 +43,15 @@
 
 ## `sync_status`
 
-Назначение: вернуть локальный diff (`added`, `modified`, `deleted`).
+Purpose: return local diff (`added`, `modified`, `deleted`).
 
-Параметры: нет.
+Parameters: none.
 
 ## `sync_commit`
 
-Назначение: создать commit entry в локальной истории.
+Purpose: create a commit entry in local history.
 
-Параметры:
+Parameters:
 
 - `message: string`
 - `all?: boolean`
@@ -60,9 +60,9 @@
 
 ## `sync_push`
 
-Назначение: отправить изменения в WordPress только при отличиях.
+Purpose: push changes to WordPress only when content differs.
 
-Параметры:
+Parameters:
 
 - `all?: boolean`
 - `file?: string`
@@ -72,9 +72,9 @@
 
 ## `sync_rollback`
 
-Назначение: откатить workspace к выбранному commit state.
+Purpose: rollback workspace to selected commit state.
 
-Параметры:
+Parameters:
 
 - `commitId: string`
 - `file?: string`
@@ -83,9 +83,9 @@
 
 ## `sync_push_file`
 
-Назначение: точечный push одного файла.
+Purpose: targeted push for a single file.
 
-Параметры:
+Parameters:
 
 - `file: string`
 - `dryRun?: boolean`
