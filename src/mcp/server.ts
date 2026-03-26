@@ -4,10 +4,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { SyncEngine } from '../core/engine.js';
 import { createProvider, type ProviderMode } from '../providers/factory.js';
 import type { SyncTargetKind, WpObject } from '../types.js';
+import { isDirectEntry } from '../utils/is-direct-entry.js';
 import {
   ensureGitInitialized,
   getMissingConnectionKeys,
@@ -610,11 +610,7 @@ export async function runMcpServer(): Promise<void> {
   await waitForStdioShutdown();
 }
 
-const directEntryHref = process.argv[1]
-  ? pathToFileURL(process.argv[1]).href
-  : undefined;
-
-if (directEntryHref && import.meta.url === directEntryHref) {
+if (isDirectEntry(import.meta.url)) {
   runMcpServer().catch((error) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
