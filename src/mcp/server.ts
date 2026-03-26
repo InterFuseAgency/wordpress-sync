@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { SyncEngine } from '../core/engine.js';
 import { createProvider, type ProviderMode } from '../providers/factory.js';
 import type { SyncTargetKind, WpObject } from '../types.js';
@@ -20,6 +21,14 @@ interface RuntimeContext {
   root: string;
   mode: ProviderMode;
   historyMode: 'json-patch' | 'full';
+}
+
+interface WorkspaceRootResolveOptions {
+  wpSyncRoot?: string;
+  cwd?: string;
+  pwd?: string;
+  initCwd?: string;
+  listRoots?: () => Promise<{ roots: Array<{ uri: string }> }>;
 }
 
 export interface ShutdownReadable {
@@ -69,8 +78,70 @@ function jsonResult(value: unknown): { content: Array<{ type: 'text'; text: stri
   };
 }
 
-function getRuntimeContext(): RuntimeContext {
-  const root = path.resolve(process.env.WP_SYNC_ROOT || process.cwd());
+function normalizeRootCandidate(input: string | undefined): string | null {
+  const trimmed = input?.trim();
+  if (!trimmed) {
+    return null;
+  }
+  return path.resolve(trimmed);
+}
+
+export async function resolveWorkspaceRoot(
+  options: WorkspaceRootResolveOptions
+): Promise<string> {
+  const explicitRoot = normalizeRootCandidate(options.wpSyncRoot);
+  if (explicitRoot) {
+    return explicitRoot;
+  }
+
+  if (options.listRoots) {
+    try {
+      const listed = await options.listRoots();
+      for (const root of listed.roots) {
+        try {
+          const parsed = new URL(root.uri);
+          if (parsed.protocol !== 'file:') {
+            continue;
+          }
+
+          const asPath = path.resolve(fileURLToPath(parsed));
+          if (asPath !== '/') {
+            return asPath;
+          }
+        } catch {
+          // Ignore invalid URLs in roots payload
+        }
+      }
+    } catch {
+      // Ignore unsupported roots/list capability
+    }
+  }
+
+  const fromEnvironment = [
+    normalizeRootCandidate(options.pwd),
+    normalizeRootCandidate(options.initCwd),
+    normalizeRootCandidate(options.cwd)
+  ];
+  const nonRoot = fromEnvironment.find(
+    (candidate): candidate is string => Boolean(candidate && candidate !== '/')
+  );
+  if (nonRoot) {
+    return nonRoot;
+  }
+
+  throw new Error(
+    'Unable to determine workspace root (resolved "/"). Set WP_SYNC_ROOT to your project path in MCP config.'
+  );
+}
+
+async function getRuntimeContext(server: McpServer): Promise<RuntimeContext> {
+  const root = await resolveWorkspaceRoot({
+    wpSyncRoot: process.env.WP_SYNC_ROOT,
+    pwd: process.env.PWD,
+    initCwd: process.env.INIT_CWD,
+    cwd: process.cwd(),
+    listRoots: async () => server.server.listRoots()
+  });
   const mode: ProviderMode = process.env.WP_SYNC_PROVIDER === 'mcp' ? 'mcp' : 'rest';
   const historyMode = process.env.WP_SYNC_HISTORY_MODE
     ? SyncEngine.historyModeFromCli(process.env.WP_SYNC_HISTORY_MODE)
@@ -302,7 +373,7 @@ async function ensureConfigured(
     input?: SetupInput;
   }
 ): Promise<{ context: RuntimeContext; gitInitialized: boolean; credentialsSaved: boolean }> {
-  const context = getRuntimeContext();
+  const context = await getRuntimeContext(server);
   const gitInitialized = await ensureGitInitialized(context.root);
   loadProjectEnv(context.root);
 

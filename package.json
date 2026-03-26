@@ -1,6 +1,6 @@
 {
   "name": "@interfuse/wordpress-mcp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Git-like WordPress/Elementor sync toolkit (CLI + MCP)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
