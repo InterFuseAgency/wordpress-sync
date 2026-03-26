@@ -22,6 +22,11 @@ interface RuntimeContext {
   historyMode: 'json-patch' | 'full';
 }
 
+export interface ShutdownReadable {
+  once(event: 'end' | 'close', listener: () => void): this;
+  resume(): this;
+}
+
 interface CachedEngineState {
   engine: SyncEngine;
   cleanup?: () => Promise<void>;
@@ -379,6 +384,25 @@ async function prepareEngine(
   return { engine, context: setup.context };
 }
 
+export function waitForStdioShutdown(
+  stdin: ShutdownReadable = process.stdin
+): Promise<void> {
+  stdin.resume();
+  return new Promise((resolve) => {
+    let resolved = false;
+    const done = (): void => {
+      if (resolved) {
+        return;
+      }
+      resolved = true;
+      resolve();
+    };
+
+    stdin.once('end', done);
+    stdin.once('close', done);
+  });
+}
+
 export async function runMcpServer(): Promise<void> {
   const server = new McpServer({
     name: 'WordPressSyncMcp',
@@ -583,6 +607,7 @@ export async function runMcpServer(): Promise<void> {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  await waitForStdioShutdown();
 }
 
 const directEntryHref = process.argv[1]
