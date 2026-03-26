@@ -293,7 +293,6 @@ describe('SyncEngine', () => {
     });
 
     const engine = new SyncEngine(root, provider);
-    await engine.init();
 
     const pages = await engine.listRemote('page');
     const components = await engine.listRemote('component');
@@ -302,6 +301,7 @@ describe('SyncEngine', () => {
     expect(pages[0].id).toBe(10);
     expect(components).toHaveLength(1);
     expect(components[0].id).toBe(11);
+    expect(existsSync(path.join(root, 'wordpress'))).toBe(false);
   });
 
   test('push skips unchanged remote content and updates changed', async () => {

@@ -67,4 +67,21 @@ describe('CLI', () => {
       { historyMode: 'full' }
     );
   });
+
+  test('rejects deprecated mcp provider mode', async () => {
+    const engine = {
+      init: vi.fn(async () => undefined),
+      pull: vi.fn(),
+      status: vi.fn(),
+      commit: vi.fn(),
+      push: vi.fn(),
+      rollback: vi.fn(),
+      pushFile: vi.fn()
+    };
+
+    await expect(runCli(['--provider', 'mcp', 'init'], async () => engine as never)).rejects.toThrow(
+      'MCP provider mode has been removed'
+    );
+    expect(engine.init).not.toHaveBeenCalled();
+  });
 });

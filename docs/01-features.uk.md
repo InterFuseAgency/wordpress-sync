@@ -65,16 +65,6 @@
 
 `push-file <path>` це shortcut для точкового push одного JSON-файлу.
 
-## 8. MCP Сервер
+## 8. Режим Тільки CLI
 
-Режим `mcp` запускає MCP сервер з такими інструментами:
-
-- `sync_setup`
-- `sync_list_pages`
-- `sync_list_components`
-- `sync_pull`
-- `sync_status`
-- `sync_commit`
-- `sync_push`
-- `sync_rollback`
-- `sync_push_file`
+Починаючи з цієї версії, пакет працює тільки як CLI. MCP server/provider режим видалено.

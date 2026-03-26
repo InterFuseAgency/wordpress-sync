@@ -74,7 +74,7 @@ export async function runCli(
   program
     .name('wordpress-sync')
     .option('--root <path>', 'workspace root', process.cwd())
-    .option('--provider <mode>', 'provider mode: rest|mcp', 'rest')
+    .option('--provider <mode>', 'provider mode: rest (mcp removed)', 'rest')
     .option(
       '--history-mode <mode>',
       'history mode: json-patch|full (env: WP_SYNC_HISTORY_MODE)',
@@ -84,10 +84,16 @@ export async function runCli(
 
   const getGlobals = (): CliGlobalOptions => {
     const opts = program.opts<{ root: string; provider: string; historyMode: string }>();
-    const provider = opts.provider === 'mcp' ? 'mcp' : 'rest';
+    const normalizedProvider = opts.provider.trim().toLowerCase();
+    if (normalizedProvider === 'mcp') {
+      throw new Error('MCP provider mode has been removed. Use REST provider mode.');
+    }
+    if (normalizedProvider !== 'rest') {
+      throw new Error(`Unsupported provider mode '${opts.provider}'. Allowed value: rest.`);
+    }
     return {
       root: path.resolve(opts.root),
-      provider,
+      provider: 'rest',
       historyMode: SyncEngine.historyModeFromCli(opts.historyMode)
     };
   };

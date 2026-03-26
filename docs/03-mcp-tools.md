@@ -1,91 +1,17 @@
-# MCP Tools
+# MCP Tools (Removed)
 
-## `sync_setup`
+MCP mode is no longer supported in this project.
 
-Purpose: initialize workspace and save WordPress credentials into `.env`.
+If you used `sync_*` MCP tools before, switch to CLI commands:
 
-Parameters:
+- `sync_setup` -> `wordpress-sync init`
+- `sync_list_pages` -> `wordpress-sync pull --all` then inspect `wordpress/pages/`
+- `sync_list_components` -> `wordpress-sync pull --all` then inspect `wordpress/components/`
+- `sync_pull` -> `wordpress-sync pull ...`
+- `sync_status` -> `wordpress-sync status`
+- `sync_commit` -> `wordpress-sync commit -m "..." --all`
+- `sync_push` -> `wordpress-sync push ...`
+- `sync_rollback` -> `wordpress-sync rollback <commitId> ...`
+- `sync_push_file` -> `wordpress-sync push-file <file> [--dry-run]`
 
-- `wpUrl?: string`
-- `wpAppUser?: string`
-- `wpAppPassword?: string`
-- `wpAuthMode?: "session" | "auto" | "basic"`
-
-## `sync_list_pages`
-
-Purpose: list WordPress pages (theme pages) without pulling into workspace.
-
-Parameters:
-
-- `search?: string`
-- `limit?: number` (default `200`, max `2000`)
-
-## `sync_list_components`
-
-Purpose: list Elementor components/templates without pulling into workspace.
-
-Parameters:
-
-- `search?: string`
-- `limit?: number` (default `200`, max `2000`)
-
-## `sync_pull`
-
-Purpose: pull WordPress objects into local workspace.
-
-Parameters:
-
-- `all?: boolean`
-- `id?: number`
-- `kind?: "page" | "component"`
-- `slug?: string`
-- `historyMode?: "json-patch" | "full"`
-
-## `sync_status`
-
-Purpose: return local diff (`added`, `modified`, `deleted`).
-
-Parameters: none.
-
-## `sync_commit`
-
-Purpose: create a commit entry in local history.
-
-Parameters:
-
-- `message: string`
-- `all?: boolean`
-- `file?: string`
-- `historyMode?: "json-patch" | "full"`
-
-## `sync_push`
-
-Purpose: push changes to WordPress only when content differs.
-
-Parameters:
-
-- `all?: boolean`
-- `file?: string`
-- `id?: number`
-- `kind?: "page" | "component"`
-- `dryRun?: boolean`
-
-## `sync_rollback`
-
-Purpose: rollback workspace to selected commit state.
-
-Parameters:
-
-- `commitId: string`
-- `file?: string`
-- `id?: number`
-- `kind?: "page" | "component"`
-
-## `sync_push_file`
-
-Purpose: targeted push for a single file.
-
-Parameters:
-
-- `file: string`
-- `dryRun?: boolean`
+Legacy `--provider mcp` now returns an explicit error.

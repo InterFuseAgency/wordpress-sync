@@ -1,11 +1,11 @@
-# WordPress Sync (TypeScript CLI + MCP)
+# WordPress Sync (TypeScript CLI)
 
-NPM package: `@interfuse/wordpress-mcp`  
+NPM package (legacy name): `@interfuse/wordpress-mcp`  
 [NPM page](https://www.npmjs.com/package/@interfuse/wordpress-mcp)
 
 ## What This Is
 
-`wordpress-mcp` is a CLI + MCP tool for syncing WordPress and Elementor content into local JSON files with a Git-like workflow.
+`wordpress-sync` is a CLI tool for syncing WordPress and Elementor content into local JSON files with a Git-like workflow.
 
 It is built for team collaboration, code review, and predictable content delivery:
 
@@ -28,8 +28,7 @@ npx -y @interfuse/wordpress-mcp init
 
 ```bash
 npm i -g @interfuse/wordpress-mcp
-wordpress-mcp --help
-wordpress-mcp mcp
+wordpress-sync --help
 ```
 
 ### Option 3: local development from this repository
@@ -37,6 +36,7 @@ wordpress-mcp mcp
 ```bash
 npm install
 npm run build
+node dist/cli.js --help
 ```
 
 ### Minimum environment variables
@@ -55,9 +55,9 @@ WP_AUTH_MODE=session
 - [Documentation Index](./docs/README.md)
 - [Features](./docs/01-features.md)
 - [CLI Commands and Flags](./docs/02-cli-flags.md)
-- [MCP Tools](./docs/03-mcp-tools.md)
 - [Environment Variables](./docs/04-env-vars.md)
 - [History Modes and Diff Format](./docs/05-history-modes.md)
+- [MCP Migration Note](./docs/03-mcp-tools.md)
 
 ### Ukrainian Translation
 
@@ -65,6 +65,6 @@ WP_AUTH_MODE=session
 - [Індекс документації (UKR)](./docs/README.uk.md)
 - [Можливості (UKR)](./docs/01-features.uk.md)
 - [CLI команди та прапорці (UKR)](./docs/02-cli-flags.uk.md)
-- [MCP інструменти (UKR)](./docs/03-mcp-tools.uk.md)
 - [Змінні оточення (UKR)](./docs/04-env-vars.uk.md)
 - [Режими історії та формат diff (UKR)](./docs/05-history-modes.uk.md)
+- [Нотатка щодо міграції з MCP (UKR)](./docs/03-mcp-tools.uk.md)

@@ -510,7 +510,6 @@ export class SyncEngine {
   }
 
   async listRemote(kind: SyncTargetKind): Promise<WpObject[]> {
-    await this.init();
     return this.provider.list(kind);
   }
 

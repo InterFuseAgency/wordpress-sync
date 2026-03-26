@@ -65,16 +65,6 @@ Legacy snapshot commits are supported.
 
 `push-file <path>` is a shortcut for targeted push of one JSON file.
 
-## 8. MCP Server
+## 8. CLI-Only Mode
 
-The `mcp` mode starts an MCP server with these tools:
-
-- `sync_setup`
-- `sync_list_pages`
-- `sync_list_components`
-- `sync_pull`
-- `sync_status`
-- `sync_commit`
-- `sync_push`
-- `sync_rollback`
-- `sync_push_file`
+Starting from this version, the package is CLI-only. MCP server/provider mode has been removed.

@@ -2,7 +2,7 @@
 
 ## Що Це
 
-Це офіційний індекс документації для `@interfuse/wordpress-mcp`, CLI + MCP інструмента для синхронізації контенту WordPress і Elementor у локальні JSON-файли з історією змін.
+Це офіційний індекс документації для `@interfuse/wordpress-mcp`, CLI-інструмента для синхронізації контенту WordPress і Elementor у локальні JSON-файли з історією змін.
 
 ## Встановлення
 
@@ -27,8 +27,8 @@ WP_APP_PASSWORD="password"
 
 - [01-features.uk.md](./01-features.uk.md) - можливості та сценарії роботи
 - [02-cli-flags.uk.md](./02-cli-flags.uk.md) - CLI команди та прапорці
-- [03-mcp-tools.uk.md](./03-mcp-tools.uk.md) - MCP інструменти та параметри
 - [04-env-vars.uk.md](./04-env-vars.uk.md) - змінні оточення
 - [05-history-modes.uk.md](./05-history-modes.uk.md) - режими історії та формат diff
+- [03-mcp-tools.uk.md](./03-mcp-tools.uk.md) - нотатка про міграцію після видалення MCP
 
 English index: [README.md](./README.md)

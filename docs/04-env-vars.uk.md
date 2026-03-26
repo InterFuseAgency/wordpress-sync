@@ -9,16 +9,9 @@
 - `WP_COOKIE` - ручний cookie (опційно)
 - `WP_NONCE` - ручний REST nonce (опційно)
 
-## Sync Engine / CLI / MCP
+## Sync Engine / CLI
 
-- `WP_SYNC_ROOT` - корінь workspace для MCP процесу
-- `WP_SYNC_PROVIDER` - `rest|mcp`
 - `WP_SYNC_HISTORY_MODE` - `json-patch|full`
-
-## MCP Provider Bridge (коли `WP_SYNC_PROVIDER=mcp`)
-
-- `ELEMENTOR_MCP_COMMAND` - команда запуску MCP клієнта (за замовчуванням: `npx`)
-- `ELEMENTOR_MCP_ARGS` - аргументи команди (за замовчуванням: `-y elementor-mcp`)
 
 ## Поведінка `WP_SYNC_HISTORY_MODE`
 

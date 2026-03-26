@@ -3,7 +3,7 @@
 ## Global Flags
 
 - `--root <path>` - workspace root (default: current directory)
-- `--provider <mode>` - `rest|mcp` (default: `rest`)
+- `--provider <mode>` - `rest` only (`mcp` is removed and returns an error)
 - `--history-mode <mode>` - `json-patch|full` (default: `json-patch` or `WP_SYNC_HISTORY_MODE`)
 
 ## `init`

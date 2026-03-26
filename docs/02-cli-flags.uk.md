@@ -3,7 +3,7 @@
 ## Глобальні Прапорці
 
 - `--root <path>` - корінь workspace (за замовчуванням: поточна директорія)
-- `--provider <mode>` - `rest|mcp` (за замовчуванням: `rest`)
+- `--provider <mode>` - тільки `rest` (`mcp` видалено і повертає помилку)
 - `--history-mode <mode>` - `json-patch|full` (за замовчуванням: `json-patch` або `WP_SYNC_HISTORY_MODE`)
 
 ## `init`
