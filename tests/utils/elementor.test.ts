@@ -3,7 +3,8 @@ import {
   buildUpdatePayloadFromWpObject,
   canonicalElementorString,
   elementorHashFromWpObject,
-  getElementorDataFromWpObject
+  getElementorDataFromWpObject,
+  prepareWpObjectForLocalEdit
 } from '../../src/utils/elementor.js';
 
 describe('elementor utils', () => {
@@ -70,6 +71,35 @@ describe('elementor utils', () => {
     });
 
     expect(payload.content).toBe('<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->');
+  });
+
+  test('prepareWpObjectForLocalEdit tolerates invalid string _elementor_data', () => {
+    const normalized = prepareWpObjectForLocalEdit({
+      id: 12,
+      type: 'page',
+      slug: 'main-page',
+      content: {
+        raw: '<p>raw content</p>',
+        rendered: '<p>rendered content</p>'
+      },
+      excerpt: {
+        raw: '',
+        rendered: '<p>excerpt</p>'
+      },
+      meta: {
+        _elementor_data: ''
+      }
+    });
+
+    expect(normalized.content).toEqual({
+      raw: '<p>raw content</p>',
+      rendered: '<p>rendered content</p>'
+    });
+    expect(normalized.excerpt).toEqual({
+      raw: '',
+      rendered: '<p>excerpt</p>'
+    });
+    expect(normalized.meta?._elementor_data).toBe('');
   });
 
   test('buildUpdatePayloadFromWpObject percent-encodes unicode slug for push', () => {

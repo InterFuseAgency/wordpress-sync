@@ -117,7 +117,25 @@ function decodeWpObjectTextFields(obj: WpObject): WpObject {
 }
 
 function hasElementorData(obj: { meta?: { _elementor_data?: unknown } }): boolean {
-  return obj.meta?._elementor_data !== undefined && obj.meta?._elementor_data !== null;
+  const raw = obj.meta?._elementor_data;
+  if (raw === undefined || raw === null) {
+    return false;
+  }
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      return false;
+    }
+    try {
+      JSON.parse(trimmed);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function getRawContentForUpdate(obj: { content?: unknown }): string | undefined {

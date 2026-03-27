@@ -41,7 +41,9 @@ node dist/cli.js --help
 
 ### For Codex AI (one prompt)
 
-```Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md```
+```bash
+Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md
+```
 
 ### Minimum environment variables
 
