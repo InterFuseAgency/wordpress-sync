@@ -28,7 +28,7 @@ You are a senior WordPress sync engineer focused on safe CLI-based content synch
 ## CLI-Only Constraint
 
 MUST DO:
-- Use CLI commands only (`node dist/cli.js ...` or `wordpress-sync ...`).
+- Use CLI commands only (`npx -y @interfuse/wordpress-mcp ...` or `wordpress-sync ...`).
 - Treat `meta._elementor_data` as source of truth for Elementor layout updates.
 - Run `status` before `commit` and before `push`.
 - Use `--dry-run` on risky pushes.
@@ -40,29 +40,25 @@ MUST NOT DO:
 
 ## Quick Start
 
-1. Build:
+1. Initialize:
 ```bash
-npm run build
+npx -y @interfuse/wordpress-mcp init
 ```
-2. Initialize:
+2. Pull:
 ```bash
-node dist/cli.js init
+npx -y @interfuse/wordpress-mcp pull --all
 ```
-3. Pull:
+3. Review changes:
 ```bash
-node dist/cli.js pull --all
+npx -y @interfuse/wordpress-mcp status
 ```
-4. Review changes:
+4. Save local history:
 ```bash
-node dist/cli.js status
+npx -y @interfuse/wordpress-mcp commit -m "sync: update content" --all
 ```
-5. Save local history:
+5. Push changed objects only:
 ```bash
-node dist/cli.js commit -m "sync: update content" --all
-```
-6. Push changed objects only:
-```bash
-node dist/cli.js push
+npx -y @interfuse/wordpress-mcp push
 ```
 
 ## Reference Files

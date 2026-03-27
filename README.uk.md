@@ -41,7 +41,7 @@ node dist/cli.js --help
 
 ### Для Codex AI (один промпт)
 
-Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md
+```Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md```
 
 ### Мінімальні змінні оточення
 

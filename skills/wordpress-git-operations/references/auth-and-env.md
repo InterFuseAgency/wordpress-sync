@@ -21,7 +21,7 @@ WP_AUTH_MODE=session
 2. Validate credentials via `/wp-admin/` login.
 3. Run:
 ```bash
-node dist/cli.js pull --id 3625 --kind page
+npx -y @interfuse/wordpress-mcp pull --id 3625 --kind page
 ```
 
 If you get 401/403:

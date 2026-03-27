@@ -3,11 +3,11 @@
 ## Standard Cycle
 
 ```bash
-node dist/cli.js init
-node dist/cli.js pull --all
-node dist/cli.js status
-node dist/cli.js commit -m "sync: update content" --all
-node dist/cli.js push
+npx -y @interfuse/wordpress-mcp init
+npx -y @interfuse/wordpress-mcp pull --all
+npx -y @interfuse/wordpress-mcp status
+npx -y @interfuse/wordpress-mcp commit -m "sync: update content" --all
+npx -y @interfuse/wordpress-mcp push
 ```
 
 ## Object-Targeted Pull
@@ -15,14 +15,14 @@ node dist/cli.js push
 By ID and kind:
 
 ```bash
-node dist/cli.js pull --id 3625 --kind page
-node dist/cli.js pull --id 1200 --kind component
+npx -y @interfuse/wordpress-mcp pull --id 3625 --kind page
+npx -y @interfuse/wordpress-mcp pull --id 1200 --kind component
 ```
 
 By slug:
 
 ```bash
-node dist/cli.js pull --slug home --kind page
+npx -y @interfuse/wordpress-mcp pull --slug home --kind page
 ```
 
 ## Important Rules
