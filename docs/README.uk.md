@@ -30,6 +30,6 @@ WP_APP_PASSWORD="password"
 - [04-env-vars.uk.md](./04-env-vars.uk.md) - змінні оточення
 - [05-history-modes.uk.md](./05-history-modes.uk.md) - режими історії та формат diff
 - [03-mcp-tools.uk.md](./03-mcp-tools.uk.md) - нотатка про міграцію після видалення MCP
-- [../.codex/INSTALL.md](../.codex/INSTALL.md) - one-command встановлення Codex skills
+- [../.codex/INSTALL.md](../.codex/INSTALL.md) - гайд зі встановлення Codex skills
 
 English index: [README.md](./README.md)

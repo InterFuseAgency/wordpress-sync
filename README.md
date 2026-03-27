@@ -39,21 +39,9 @@ npm run build
 node dist/cli.js --help
 ```
 
-### Install Codex Skills Automatically (for AI prompts)
+### For Codex AI (one prompt)
 
-From local clone:
-
-```bash
-./install
-```
-
-From GitHub:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
-```
-
-After install, restart Codex.
+Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md
 
 ### Minimum environment variables
 

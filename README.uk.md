@@ -39,21 +39,9 @@ npm run build
 node dist/cli.js --help
 ```
 
-### Авто-встановлення Codex Skills (для AI промптів)
+### Для Codex AI (один промпт)
 
-З локального клону:
-
-```bash
-./install
-```
-
-З GitHub:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
-```
-
-Після встановлення перезапустіть Codex.
+Fetch and follow instructions from https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/.codex/INSTALL.md
 
 ### Мінімальні змінні оточення
 
