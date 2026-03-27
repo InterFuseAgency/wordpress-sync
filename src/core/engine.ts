@@ -491,6 +491,16 @@ export class SyncEngine {
         object: normalizedObject
       });
 
+      const conflictingKey = await this.removeConflictingTrackedObject(
+        manifest,
+        kind,
+        normalizedObject.id,
+        filePath
+      );
+      if (conflictingKey) {
+        changedKeys.push(conflictingKey);
+      }
+
       changedKeys.push(key);
     }
 
@@ -709,6 +719,9 @@ export class SyncEngine {
 
   private async resolvePullObjects(selector: PullSelector): Promise<WpObject[]> {
     if (selector.all) {
+      if (selector.kind) {
+        return this.provider.list(selector.kind);
+      }
       const [pages, components] = await Promise.all([
         this.provider.list('page'),
         this.provider.list('component')
@@ -737,6 +750,29 @@ export class SyncEngine {
     }
 
     throw new Error('Invalid pull selector. Use --all, --id/--kind or --slug');
+  }
+
+  private async removeConflictingTrackedObject(
+    manifest: GitManifest,
+    kind: SyncTargetKind,
+    id: number,
+    nextFilePath: string
+  ): Promise<string | null> {
+    const conflictingKind: SyncTargetKind = kind === 'page' ? 'component' : 'page';
+    const conflictingKey = objectKey(conflictingKind, id);
+    const conflicting = manifest.objects[conflictingKey];
+    if (!conflicting) {
+      return null;
+    }
+
+    delete manifest.objects[conflictingKey];
+    const conflictingPath = path.resolve(this.root, conflicting.filePath);
+    const nextPath = path.resolve(nextFilePath);
+    if (conflictingPath !== nextPath) {
+      await unlink(conflictingPath).catch(() => undefined);
+    }
+
+    return conflictingKey;
   }
 
   private async resolvePushKeys(

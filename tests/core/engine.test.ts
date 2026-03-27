@@ -58,6 +58,19 @@ function samplePage(id: number, slug: string, elementorId: string): WpObject {
   };
 }
 
+function sampleComponent(id: number, slug: string, elementorId: string): WpObject {
+  return {
+    id,
+    type: 'elementor_library',
+    slug,
+    title: { rendered: `Component ${id}` },
+    status: 'publish',
+    meta: {
+      _elementor_data: [{ id: elementorId, elType: 'section' }]
+    }
+  };
+}
+
 describe('SyncEngine', () => {
   test('pull stores full history record and next commit stores diff', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
@@ -232,6 +245,72 @@ describe('SyncEngine', () => {
     const parsed = JSON.parse(readFileSync(file, 'utf8'));
     expect(Array.isArray(parsed.meta._elementor_data)).toBe(true);
     expect(parsed.meta._elementor_data).toEqual([{ id: '10', elType: 'section' }]);
+  });
+
+  test('pull --all with --kind pulls only the requested kind', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10'),
+      'component:11': sampleComponent(11, 'hero-banner', '11')
+    });
+
+    const engine = new SyncEngine(root, provider);
+    await engine.init();
+    await engine.pull({ all: true, kind: 'page' });
+
+    expect(existsSync(path.join(root, 'wordpress', 'pages', 'main-page', '10.json'))).toBe(true);
+    expect(existsSync(path.join(root, 'wordpress', 'components', 'hero-banner', '11.json'))).toBe(false);
+
+    const manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    expect(Object.keys(manifest.objects)).toEqual(['page:10']);
+  });
+
+  test('pull removes stale opposite-kind entry for the same id', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wp-sync-'));
+    const provider = new MockProvider({
+      'page:10': samplePage(10, 'main-page', '10')
+    });
+
+    const staleFilePath = path.join(root, 'wordpress', 'components', 'main-page', '10.json');
+    mkdirSync(path.dirname(staleFilePath), { recursive: true });
+    writeFileSync(staleFilePath, JSON.stringify(samplePage(10, 'main-page', '10'), null, 2));
+
+    const manifestPath = path.join(root, 'wordpress', 'git.json');
+    mkdirSync(path.dirname(manifestPath), { recursive: true });
+    writeFileSync(
+      manifestPath,
+      JSON.stringify(
+        {
+          version: 2,
+          head: null,
+          commits: [],
+          objects: {
+            'component:10': {
+              id: 10,
+              kind: 'component',
+              slug: 'main-page',
+              title: 'Title 10',
+              filePath: 'wordpress/components/main-page/10.json',
+              localHash: 'stale',
+              lastPushedHash: null,
+              lastPulledHash: null,
+              updatedAt: new Date().toISOString()
+            }
+          },
+          updatedAt: new Date().toISOString()
+        },
+        null,
+        2
+      )
+    );
+
+    const engine = new SyncEngine(root, provider);
+    await engine.pull({ all: true });
+
+    const manifest = JSON.parse(readFileSync(path.join(root, 'wordpress', 'git.json'), 'utf8'));
+    expect(Object.keys(manifest.objects)).toEqual(['page:10']);
+    expect(existsSync(staleFilePath)).toBe(false);
+    expect(existsSync(path.join(root, 'wordpress', 'pages', 'main-page', '10.json'))).toBe(true);
   });
 
   test('pull decodes percent-encoded slug/link for local files', async () => {
