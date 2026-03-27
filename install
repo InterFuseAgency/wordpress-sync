@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_URL="${WORDPRESS_SYNC_REPO_URL:-https://github.com/InterFuseAgency/wordpress-sync.git}"
+INSTALL_DIR="${WORDPRESS_SYNC_INSTALL_DIR:-$HOME/.codex/wordpress-sync}"
+SKILLS_HOME="${WORDPRESS_SYNC_SKILLS_HOME:-$HOME/.agents/skills}"
+LINK_PATH="$SKILLS_HOME/wordpress-sync"
+
+log() {
+  printf '[wordpress-sync-install] %s\n' "$1"
+}
+
+resolve_local_source() {
+  if [ -n "${WORDPRESS_SYNC_SOURCE_DIR:-}" ] && [ -d "${WORDPRESS_SYNC_SOURCE_DIR}/skills" ]; then
+    printf '%s\n' "$WORDPRESS_SYNC_SOURCE_DIR"
+    return
+  fi
+
+  if [ -n "${BASH_SOURCE[0]:-}" ] && [ -e "${BASH_SOURCE[0]}" ]; then
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+    if [ -d "$script_dir/skills" ] && [ -d "$script_dir/.git" ]; then
+      printf '%s\n' "$script_dir"
+      return
+    fi
+  fi
+
+  if [ -d "$PWD/skills" ] && [ -d "$PWD/.git" ]; then
+    printf '%s\n' "$PWD"
+    return
+  fi
+
+  printf '\n'
+}
+
+prepare_repo_copy() {
+  if ! command -v git >/dev/null 2>&1; then
+    log 'Git is required but was not found in PATH.'
+    exit 1
+  fi
+
+  mkdir -p "$(dirname "$INSTALL_DIR")"
+
+  if [ -d "$INSTALL_DIR/.git" ]; then
+    log "Updating existing clone at $INSTALL_DIR"
+    git -C "$INSTALL_DIR" pull --ff-only
+    return
+  fi
+
+  if [ -e "$INSTALL_DIR" ]; then
+    log "Path exists and is not a git clone: $INSTALL_DIR"
+    log 'Set WORDPRESS_SYNC_INSTALL_DIR to another path or remove this path manually.'
+    exit 1
+  fi
+
+  log "Cloning repository to $INSTALL_DIR"
+  git clone "$REPO_URL" "$INSTALL_DIR"
+}
+
+backup_existing_link_target_if_needed() {
+  if [ ! -e "$LINK_PATH" ] && [ ! -L "$LINK_PATH" ]; then
+    return
+  fi
+
+  if [ -L "$LINK_PATH" ] || [ -f "$LINK_PATH" ]; then
+    rm -f "$LINK_PATH"
+    return
+  fi
+
+  local backup_path
+  backup_path="$LINK_PATH.backup.$(date +%Y%m%d%H%M%S)"
+  mv "$LINK_PATH" "$backup_path"
+  log "Existing directory moved to backup: $backup_path"
+}
+
+main() {
+  local source_dir
+  source_dir="$(resolve_local_source)"
+
+  if [ -z "$source_dir" ]; then
+    prepare_repo_copy
+    source_dir="$INSTALL_DIR"
+  else
+    log "Using local repository source: $source_dir"
+  fi
+
+  mkdir -p "$SKILLS_HOME"
+  backup_existing_link_target_if_needed
+  ln -s "$source_dir/skills" "$LINK_PATH"
+
+  log "Skills installed: $LINK_PATH -> $source_dir/skills"
+  log 'Restart Codex so skill discovery picks up the updated link.'
+}
+
+main "$@"

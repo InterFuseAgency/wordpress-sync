@@ -1,48 +1,25 @@
 # Installing WordPress Sync Skills for Codex
 
-Enable this project's skills in Codex through native skill discovery using a git clone and symlink.
+Use the bundled installer for one-command setup.
 
-## Prerequisites
+## One-Command Install (recommended)
 
-- Git
-
-## Installation
-
-1. Clone this repository to your Codex workspace:
+From local clone:
 
 ```bash
-git clone https://github.com/InterFuseAgency/wordpress-sync.git ~/.codex/wordpress-sync
+./install
 ```
 
-2. Create a symlink from the repo `skills/` directory into `~/.agents/skills`:
+From GitHub (for AI / remote prompt execution):
 
 ```bash
-mkdir -p ~/.agents/skills
-ln -s ~/.codex/wordpress-sync/skills ~/.agents/skills/wordpress-sync
+curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
 ```
 
-Windows (PowerShell):
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.agents\skills"
-cmd /c mklink /J "$env:USERPROFILE\.agents\skills\wordpress-sync" "$env:USERPROFILE\.codex\wordpress-sync\skills"
-```
-
-3. Restart Codex (close and relaunch) so skills are discovered.
-
-## Migrating from an older setup
-
-If you used another bootstrap method before native discovery:
-
-1. Update the local clone:
-
-```bash
-cd ~/.codex/wordpress-sync && git pull
-```
-
-2. Create the symlink from step 2 above.
-3. Remove old bootstrap snippets from `~/.codex/AGENTS.md` if you have them.
-4. Restart Codex.
+This installer:
+- clones or updates `~/.codex/wordpress-sync`
+- creates/updates `~/.agents/skills/wordpress-sync` symlink
+- keeps previous non-symlink directory as timestamped backup if needed
 
 ## Verify
 
@@ -50,24 +27,27 @@ cd ~/.codex/wordpress-sync && git pull
 ls -la ~/.agents/skills/wordpress-sync
 ```
 
-The result should be a symlink (or junction on Windows) pointing to `~/.codex/wordpress-sync/skills`.
-
-## Updating
+It should point to:
 
 ```bash
-cd ~/.codex/wordpress-sync && git pull
+~/.codex/wordpress-sync/skills
 ```
 
-Skills refresh through the symlink.
+## Update Skills Later
 
-## Uninstalling
+Run the same installer again:
 
 ```bash
-rm ~/.agents/skills/wordpress-sync
+./install
 ```
 
-Optional cleanup:
+Or remote form:
 
 ```bash
-rm -rf ~/.codex/wordpress-sync
+curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
 ```
+
+## Notes
+
+- Restart Codex after install/update so skill discovery refreshes.
+- Windows users can run setup manually via symlink/junction as needed.

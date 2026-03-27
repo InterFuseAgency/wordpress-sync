@@ -39,6 +39,22 @@ npm run build
 node dist/cli.js --help
 ```
 
+### Авто-встановлення Codex Skills (для AI промптів)
+
+З локального клону:
+
+```bash
+./install
+```
+
+З GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
+```
+
+Після встановлення перезапустіть Codex.
+
 ### Мінімальні змінні оточення
 
 ```bash
@@ -58,6 +74,7 @@ WP_AUTH_MODE=session
 - [Environment Variables](./docs/04-env-vars.md)
 - [History Modes and Diff Format](./docs/05-history-modes.md)
 - [MCP Migration Note](./docs/03-mcp-tools.md)
+- [Codex Skill Install Guide](./.codex/INSTALL.md)
 
 ### Український Переклад
 

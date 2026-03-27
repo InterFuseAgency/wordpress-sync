@@ -30,5 +30,6 @@ For full install and setup details, see [../README.md](../README.md).
 - [04-env-vars.md](./04-env-vars.md) - environment variables
 - [05-history-modes.md](./05-history-modes.md) - history modes and diff format
 - [03-mcp-tools.md](./03-mcp-tools.md) - migration note for removed MCP mode
+- [../.codex/INSTALL.md](../.codex/INSTALL.md) - one-command Codex skills install
 
 Ukrainian index: [README.uk.md](./README.uk.md)

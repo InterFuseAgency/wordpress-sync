@@ -39,6 +39,22 @@ npm run build
 node dist/cli.js --help
 ```
 
+### Install Codex Skills Automatically (for AI prompts)
+
+From local clone:
+
+```bash
+./install
+```
+
+From GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/InterFuseAgency/wordpress-sync/refs/heads/main/install | bash
+```
+
+After install, restart Codex.
+
 ### Minimum environment variables
 
 ```bash
@@ -58,6 +74,7 @@ WP_AUTH_MODE=session
 - [Environment Variables](./docs/04-env-vars.md)
 - [History Modes and Diff Format](./docs/05-history-modes.md)
 - [MCP Migration Note](./docs/03-mcp-tools.md)
+- [Codex Skill Install Guide](./.codex/INSTALL.md)
 
 ### Ukrainian Translation
 
